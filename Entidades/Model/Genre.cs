@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Persistencia.Entidades
+namespace Entidades.Model
 {
     public class Genre
     {

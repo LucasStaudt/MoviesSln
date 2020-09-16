@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Persistencia.Entidades
+namespace Entidades.Model
 {
     public class Movie
 
@@ -13,7 +13,7 @@ namespace Persistencia.Entidades
         public DateTime ReleaseDate { get; set; }
         public decimal Gross { get; set; }
         public double Rating { get; set; }
-        public int GenreID { get; set; }
+        public int GenreId { get; set; }
         public virtual Genre Genre { get; set; }
     }
 }

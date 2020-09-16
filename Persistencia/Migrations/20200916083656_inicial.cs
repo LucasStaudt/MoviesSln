@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Persistencia.Migrations
 {
-    public partial class InitDB : Migration
+    public partial class inicial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,23 +32,23 @@ namespace Persistencia.Migrations
                     ReleaseDate = table.Column<DateTime>(nullable: false),
                     Gross = table.Column<decimal>(nullable: false),
                     Rating = table.Column<double>(nullable: false),
-                    GenreID = table.Column<int>(nullable: false)
+                    GenreId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Movies", x => x.MovieId);
                     table.ForeignKey(
-                        name: "FK_Movies_Genres_GenreID",
-                        column: x => x.GenreID,
+                        name: "FK_Movies_Genres_GenreId",
+                        column: x => x.GenreId,
                         principalTable: "Genres",
                         principalColumn: "GenreId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Movies_GenreID",
+                name: "IX_Movies_GenreId",
                 table: "Movies",
-                column: "GenreID");
+                column: "GenreId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

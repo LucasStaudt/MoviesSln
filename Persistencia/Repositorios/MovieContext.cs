@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Persistencia.Entidades;
+﻿using Entidades.Model;
+using Microsoft.EntityFrameworkCore;
+
 using System;
 using System.Collections.Generic;
 using System.Text;

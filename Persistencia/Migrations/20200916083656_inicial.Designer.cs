@@ -10,8 +10,8 @@ using Persistencia.Repositorios;
 namespace Persistencia.Migrations
 {
     [DbContext(typeof(MovieContext))]
-    [Migration("20200903222923_InitDB")]
-    partial class InitDB
+    [Migration("20200916083656_inicial")]
+    partial class inicial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace Persistencia.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Persistencia.Entidades.Genre", b =>
+            modelBuilder.Entity("Entidades.Model.Genre", b =>
                 {
                     b.Property<int>("GenreId")
                         .ValueGeneratedOnAdd()
@@ -40,7 +40,7 @@ namespace Persistencia.Migrations
                     b.ToTable("Genres");
                 });
 
-            modelBuilder.Entity("Persistencia.Entidades.Movie", b =>
+            modelBuilder.Entity("Entidades.Model.Movie", b =>
                 {
                     b.Property<int>("MovieId")
                         .ValueGeneratedOnAdd()
@@ -50,7 +50,7 @@ namespace Persistencia.Migrations
                     b.Property<string>("Director")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("GenreID")
+                    b.Property<int>("GenreId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("Gross")
@@ -67,16 +67,16 @@ namespace Persistencia.Migrations
 
                     b.HasKey("MovieId");
 
-                    b.HasIndex("GenreID");
+                    b.HasIndex("GenreId");
 
                     b.ToTable("Movies");
                 });
 
-            modelBuilder.Entity("Persistencia.Entidades.Movie", b =>
+            modelBuilder.Entity("Entidades.Model.Movie", b =>
                 {
-                    b.HasOne("Persistencia.Entidades.Genre", "Genre")
+                    b.HasOne("Entidades.Model.Genre", "Genre")
                         .WithMany("Movies")
-                        .HasForeignKey("GenreID")
+                        .HasForeignKey("GenreId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

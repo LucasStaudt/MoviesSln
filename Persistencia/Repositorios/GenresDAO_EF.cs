@@ -1,15 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Entidades.Interface;
+using Entidades.Model;
+using Entidades.ViewModel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Win32.SafeHandles;
-using Persistencia.Entidades;
+
+
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Persistencia.Repositorios
 {
-    public class GenresDAO_EF : IDisposable
+    public class GenresDAO_EF : IGenres, IDisposable
+    //public class GenresDAO_EF : IDisposable
 
     {
         private MovieContext _context;
@@ -19,7 +25,7 @@ namespace Persistencia.Repositorios
             _context = new MovieContext();
 
         }
-        public async Task Add(Genre genre)
+        public async Task Inserir(Genre genre)
         {
             await _context.Genres.AddAsync(genre);
             await _context.SaveChangesAsync();
@@ -29,7 +35,6 @@ namespace Persistencia.Repositorios
         {
             return await _context.Genres.ToListAsync();
         }
-
     
             public async Task Delete(Genre genre)
             {
@@ -51,11 +56,26 @@ namespace Persistencia.Repositorios
                 
             }
 
+        public async Task<ICollection<GenreSummary>> getGenreSummary()
+        {
+             var query = from f in _context.Movies
+                        group f by f.Genre.Name into grpGen
+                        select new GenreSummary
+                        {
+                            Categoria = grpGen.Key,
+                            Faturamento = grpGen.Sum(e => e.Gross),
+                            Avaliacao = grpGen.Average(e => e.Rating),
+                            Quantidade = grpGen.Count()
+                        };
+
+            return await query.ToListAsync();       
+
+        }
 
 
-            #region Disposed https://docs.microsoft.com/pt-br/dotnet/standard/garbage-collection/implementing-dispose
-            // Flag: Has Dispose already been called?
-            bool disposed = false;
+        #region Disposed https://docs.microsoft.com/pt-br/dotnet/standard/garbage-collection/implementing-dispose
+        // Flag: Has Dispose already been called?
+        bool disposed = false;
         // Instantiate a SafeHandle instance.
         SafeHandle handle = new SafeFileHandle(IntPtr.Zero, true);
 
@@ -84,6 +104,8 @@ namespace Persistencia.Repositorios
 
             disposed = true;
         }
+
+      
         #endregion
     }
 }
