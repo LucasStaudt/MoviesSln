@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Persistencia.Repositorios
 {
     public class MoviesDAO_EF : IDisposable
-    //public class GenresDAO_EF : IDisposable
+ 
 
     {
         private MovieContext _context;

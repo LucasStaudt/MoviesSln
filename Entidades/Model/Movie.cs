@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Entidades.Model
@@ -11,9 +13,14 @@ namespace Entidades.Model
         public string Title { get; set; }
         public string Director { get; set; }
         public DateTime ReleaseDate { get; set; }
+
+        [Column(TypeName = "decimal(15, 2)")]
         public decimal Gross { get; set; }
         public double Rating { get; set; }
         public int GenreId { get; set; }
         public virtual Genre Genre { get; set; }
+
+        public virtual ICollection<ActorMovie> Characters { get; set; }
+
     }
 }

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Dominio
+namespace Entidades.Interface
 {
-    public class FachadaDominio
+    class ICrud
     {
-        // operacoes de crud
     }
 }

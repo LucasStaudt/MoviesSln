@@ -15,6 +15,83 @@ namespace MovieConsole
         {
             MovieContext db = new MovieContext();
 
+            #region # LINQ - consultas 16 de setembro
+
+
+            var q1 = (from m in db.Movies
+                      select m.Rating).Average();
+
+            Console.WriteLine("Avaliacao media dos filmes: " + q1);
+
+            var q2 = db.Movies
+                       .Average(f => f.Rating);
+
+            Console.WriteLine("\nAvaliacao media dos filmes (method syntax): " + q2);
+
+            var q3 = db.Movies
+                       .Where(f => f.Genre.Name == "Action")
+                       .Average(f => f.Rating);
+
+            Console.WriteLine("\nAvaliacao media dos filmes de acao:" + q3);
+
+            var q4 = db.Movies
+                       .Where(f => f.Genre.Name == "Action")
+                       .Max(f => f.Rating);
+
+            Console.WriteLine("\nMelhor avaliacao de um filme de acao: " + q4);
+
+
+            // explict loading
+            var q5 = (from f in db.Movies
+                      let melhor = db.Movies.Max(f => f.Rating)
+                      where f.Rating == melhor
+                      select f).ToList();
+
+            Console.WriteLine("\nFilme melhor avaliado (explict loading): ");
+
+            foreach (Movie m in q5)
+            {
+                db.Entry(m)
+                  .Reference(m => m.Genre)
+                  .Load();
+
+                Console.WriteLine("\t{0} {1} {2} ", m.Rating, m.Genre.Name, m.Title);
+            }
+
+            // eager loading
+            var q6 = from f in db.Movies.Include(movie => movie.Genre)
+                     let melhor = db.Movies.Max(f => f.Rating)
+                     where f.Rating == melhor
+                     select f;
+
+            Console.WriteLine("\nFilme melhor avaliado (eager loading): ");
+            foreach (Movie f in q6)
+            {
+                Console.WriteLine("\t{0} {1} {2} ", f.Rating, f.Genre.Name, f.Title);
+            }
+
+
+            //
+            // para utilizar 'lazy loading'
+            // https://docs.microsoft.com/en-us/ef/core/querying/related-data/lazy
+            //
+            var q7 = (from f in db.Movies
+                      let melhor = db.Movies
+                                     .Where(f => f.Genre.Name == "Action")
+                                     .Max(f => f.Rating)
+                      where f.Genre.Name == "Action" && f.Rating == melhor
+                      select f).FirstOrDefault();
+
+            Console.WriteLine("\nFilme melhor avaliado de Action: ");
+           // foreach (Movie f in q7)
+           // {
+                Console.WriteLine("\t{0} {1}", q7.Rating, q7.Title);
+            //   }
+
+
+
+            #endregion
+
             #region # LINQ - consultas
             //Console.WriteLine();
             //Console.WriteLine("Todos os gêneros da base de dados:");
@@ -73,22 +150,22 @@ namespace MovieConsole
 
 
 
-            Console.WriteLine();
-            Console.WriteLine("Nomes dos filmes do diretor Quentin Tarantino:");
-            var q1 = from f in db.Movies
-                     where f.Director == "Quentin Tarantino"
-                     select new
-                     {
-                         Ano = f.ReleaseDate.Year,
-                         Titulo = f.Title
-                     };
+            //Console.WriteLine();
+            //Console.WriteLine("Nomes dos filmes do diretor Quentin Tarantino:");
+            //var q1 = from f in db.Movies
+            //         where f.Director == "Quentin Tarantino"
+            //         select new
+            //         {
+            //             Ano = f.ReleaseDate.Year,
+            //             Titulo = f.Title
+            //         };
 
-           // var q2 = db.Movies.Where(f => f.Director == "Quentin Tarantino").Select(f => f.Title);
+            // var q2 = db.Movies.Where(f => f.Director == "Quentin Tarantino").Select(f => f.Title);
 
-            foreach (var item in q1)
-            {
-                Console.WriteLine("{0} - {1}", item.Ano, item.Titulo);
-            }
+            //foreach (var item in q1)
+            //{
+            //    Console.WriteLine("{0} - {1}", item.Ano, item.Titulo);
+            //}
 
 
             //Console.WriteLine();
@@ -101,9 +178,9 @@ namespace MovieConsole
             //    Console.WriteLine("{0}\t {1}", f.ReleaseDate.ToShortDateString(), f.Title);
             //}
 
-            Console.WriteLine();
-            Console.WriteLine("Todos os gêneros ordenados pelo nome:");
-            //var q4 = db.Genres.OrderByDescending(g => g.Name);
+            //Console.WriteLine();
+            //Console.WriteLine("Todos os gêneros ordenados pelo nome:");
+            ////var q4 = db.Genres.OrderByDescending(g => g.Name);
             //foreach (var genero in q4)
             //{
             //    Console.WriteLine("{0, 20}\t {1}", genero.Name, genero.Description.Substring(0,30));
@@ -126,25 +203,52 @@ namespace MovieConsole
             //Console.WriteLine("tecle algo para continuar");
             //Console.ReadKey();
 
-            Console.WriteLine();
-            Console.WriteLine("Projeção do faturamento total, quantidade de filmes e avaliação média agrupadas por gênero:");
-            var q6 = from f in db.Movies
-                     group f by f.Genre.Name into grpGen
-                     select new
-                     {
-                         Categoria = grpGen.Key,
-                         Faturamento = grpGen.Sum(e => e.Gross),
-                         Avaliacao = grpGen.Average(e => e.Rating),
-                         Quantidade = grpGen.Count()
-                     };
+            //Console.WriteLine();
+            //Console.WriteLine("Projeção do faturamento total, quantidade de filmes e avaliação média agrupadas por gênero:");
+            //var q6 = from f in db.Movies
+            //         group f by f.Genre.Name into grpGen
+            //         select new
+            //         {
+            //             Categoria = grpGen.Key,
+            //             Faturamento = grpGen.Sum(e => e.Gross),
+            //             Avaliacao = grpGen.Average(e => e.Rating),
+            //             Quantidade = grpGen.Count()
+            //         };
 
-            foreach (var genero in q6)
+            //foreach (var genero in q6)
+            //{
+            //    Console.WriteLine("Genero: {0}", genero.Categoria);
+            //    Console.WriteLine("\tFaturamento total: {0}\n\t Avaliação média: {1}\n\tNumero de filmes: {2}",
+            //                    genero.Faturamento, genero.Avaliacao, genero.Quantidade);
+            //}
+            #endregion
+
+            #region - consultas com casting
+            MovieContext cntx2 = new MovieContext();
+
+            Console.WriteLine("\nElenco de Star Wars");
+            var query9 = from p in cntx2.Characters.Include("Movie").Include("Actor")
+                         where p.Movie.Title == "Star Wars"
+                         select p;
+
+            foreach (var res in query9)
             {
-                Console.WriteLine("Genero: {0}", genero.Categoria);
-                Console.WriteLine("\tFaturamento total: {0}\n\t Avaliação média: {1}\n\tNumero de filmes: {2}",
-                                genero.Faturamento, genero.Avaliacao, genero.Quantidade);
+                Console.WriteLine("\t{0}\t {1}", res.Character, res.Actor.Name);
+            }
+
+            Console.WriteLine("\nAtores que desempenharam James Bond");
+            var query10 = from p in cntx2.Characters.Include("Movie").Include("Actor")
+                          where p.Character == "James Bond"
+                          orderby p.Movie.ReleaseDate.Year
+                          select p;
+
+            foreach (var res in query10)
+            {
+                Console.WriteLine("\t{0}\t {1}\t {2}", res.Movie.ReleaseDate.Year, res.Actor.Name, res.Movie.Title);
             }
             #endregion
+
+            Console.ReadKey();
 
 
 
