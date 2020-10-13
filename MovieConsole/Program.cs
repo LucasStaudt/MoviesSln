@@ -5,6 +5,7 @@ using Persistencia.Repositorios;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Principal;
 
 namespace MovieConsole
 {
@@ -18,75 +19,75 @@ namespace MovieConsole
             #region # LINQ - consultas 16 de setembro
 
 
-            var q1 = (from m in db.Movies
-                      select m.Rating).Average();
+           // var q1 = (from m in db.Movies
+           //           select m.Rating).Average();
 
-            Console.WriteLine("Avaliacao media dos filmes: " + q1);
+           // Console.WriteLine("Avaliacao media dos filmes: " + q1);
 
-            var q2 = db.Movies
-                       .Average(f => f.Rating);
+           // var q2 = db.Movies
+           //            .Average(f => f.Rating);
 
-            Console.WriteLine("\nAvaliacao media dos filmes (method syntax): " + q2);
+           // Console.WriteLine("\nAvaliacao media dos filmes (method syntax): " + q2);
 
-            var q3 = db.Movies
-                       .Where(f => f.Genre.Name == "Action")
-                       .Average(f => f.Rating);
+           // var q3 = db.Movies
+           //            .Where(f => f.Genre.Name == "Action")
+           //            .Average(f => f.Rating);
 
-            Console.WriteLine("\nAvaliacao media dos filmes de acao:" + q3);
+           // Console.WriteLine("\nAvaliacao media dos filmes de acao:" + q3);
 
-            var q4 = db.Movies
-                       .Where(f => f.Genre.Name == "Action")
-                       .Max(f => f.Rating);
+           // var q4 = db.Movies
+           //            .Where(f => f.Genre.Name == "Action")
+           //            .Max(f => f.Rating);
 
-            Console.WriteLine("\nMelhor avaliacao de um filme de acao: " + q4);
-
-
-            // explict loading
-            var q5 = (from f in db.Movies
-                      let melhor = db.Movies.Max(f => f.Rating)
-                      where f.Rating == melhor
-                      select f).ToList();
-
-            Console.WriteLine("\nFilme melhor avaliado (explict loading): ");
-
-            foreach (Movie m in q5)
-            {
-                db.Entry(m)
-                  .Reference(m => m.Genre)
-                  .Load();
-
-                Console.WriteLine("\t{0} {1} {2} ", m.Rating, m.Genre.Name, m.Title);
-            }
-
-            // eager loading
-            var q6 = from f in db.Movies.Include(movie => movie.Genre)
-                     let melhor = db.Movies.Max(f => f.Rating)
-                     where f.Rating == melhor
-                     select f;
-
-            Console.WriteLine("\nFilme melhor avaliado (eager loading): ");
-            foreach (Movie f in q6)
-            {
-                Console.WriteLine("\t{0} {1} {2} ", f.Rating, f.Genre.Name, f.Title);
-            }
+           // Console.WriteLine("\nMelhor avaliacao de um filme de acao: " + q4);
 
 
-            //
-            // para utilizar 'lazy loading'
-            // https://docs.microsoft.com/en-us/ef/core/querying/related-data/lazy
-            //
-            var q7 = (from f in db.Movies
-                      let melhor = db.Movies
-                                     .Where(f => f.Genre.Name == "Action")
-                                     .Max(f => f.Rating)
-                      where f.Genre.Name == "Action" && f.Rating == melhor
-                      select f).FirstOrDefault();
+           // // explict loading
+           // var q5 = (from f in db.Movies
+           //           let melhor = db.Movies.Max(f => f.Rating)
+           //           where f.Rating == melhor
+           //           select f).ToList();
 
-            Console.WriteLine("\nFilme melhor avaliado de Action: ");
-           // foreach (Movie f in q7)
+           // Console.WriteLine("\nFilme melhor avaliado (explict loading): ");
+
+           // foreach (Movie m in q5)
            // {
-                Console.WriteLine("\t{0} {1}", q7.Rating, q7.Title);
-            //   }
+           //     db.Entry(m)
+           //       .Reference(m => m.Genre)
+           //       .Load();
+
+           //     Console.WriteLine("\t{0} {1} {2} ", m.Rating, m.Genre.Name, m.Title);
+           // }
+
+           // // eager loading
+           // var q6 = from f in db.Movies.Include(movie => movie.Genre)
+           //          let melhor = db.Movies.Max(f => f.Rating)
+           //          where f.Rating == melhor
+           //          select f;
+
+           // Console.WriteLine("\nFilme melhor avaliado (eager loading): ");
+           // foreach (Movie f in q6)
+           // {
+           //     Console.WriteLine("\t{0} {1} {2} ", f.Rating, f.Genre.Name, f.Title);
+           // }
+
+
+           // //
+           // // para utilizar 'lazy loading'
+           // // https://docs.microsoft.com/en-us/ef/core/querying/related-data/lazy
+           // //
+           // var q7 = (from f in db.Movies
+           //           let melhor = db.Movies
+           //                          .Where(f => f.Genre.Name == "Action")
+           //                          .Max(f => f.Rating)
+           //           where f.Genre.Name == "Action" && f.Rating == melhor
+           //           select f).FirstOrDefault();
+
+           // Console.WriteLine("\nFilme melhor avaliado de Action: ");
+           //// foreach (Movie f in q7)
+           //// {
+           //     Console.WriteLine("\t{0} {1}", q7.Rating, q7.Title);
+           // //   }
 
 
 
@@ -226,7 +227,8 @@ namespace MovieConsole
             #region - consultas com casting
             MovieContext cntx2 = new MovieContext();
 
-            Console.WriteLine("\nElenco de Star Wars");
+            // 1. Listar o elenco de um determinado filme
+            Console.WriteLine("\n1. Elenco de Star Wars");
             var query9 = from p in cntx2.Characters.Include("Movie").Include("Actor")
                          where p.Movie.Title == "Star Wars"
                          select p;
@@ -236,7 +238,9 @@ namespace MovieConsole
                 Console.WriteLine("\t{0}\t {1}", res.Character, res.Actor.Name);
             }
 
-            Console.WriteLine("\nAtores que desempenharam James Bond");
+            // 2.Listar todos os atores que já desempenharam um determinado personagem(por exemplo, quem foram todos os “agentes 007”?)
+
+            Console.WriteLine("\n2. Atores que desempenharam James Bond");
             var query10 = from p in cntx2.Characters.Include("Movie").Include("Actor")
                           where p.Character == "James Bond"
                           orderby p.Movie.ReleaseDate.Year
@@ -248,9 +252,68 @@ namespace MovieConsole
             }
             #endregion
 
+
+
+            // 3. Informar qual o ator desempenhou mais vezes um determinado personagem(qual o ator que realizou mais filmes como o “agente 007”) 
+            Console.WriteLine("\n3. Atores x papeis");
+            var query11 = from p in cntx2.Characters.Include("Movie").Include("Actor")
+                          group p by  p.Actor.Name + ", " + p.Character into grp
+                          select new
+                          {
+                              Personagem = grp.Key,
+                              Quant = grp.Count()
+                          };
+
+            
+            foreach (var res in query11.OrderByDescending(e => e.Quant))
+            {
+                Console.WriteLine("\t{0}\t {1}", res.Personagem, res.Quant);
+            }
+
+
+            // 4. Mostrar o nome de todos os filmes de um determinado ator
+            Console.WriteLine("\n4. Filmes do ator Judi Dench");
+            var query12 = from p in cntx2.Characters.Include("Movie").Include("Actor")
+                          where p.Actor.Name == "Judi Dench"
+                          select p.Movie.Title;
+
+
+            foreach (var res in query12)
+            {
+                Console.WriteLine("\t {0}",res);
+            }
+
+            // 5. Mostrar o nome de todos os gêneros que um determinado ator atuou(e o número de filmes neste gênero)
+            Console.WriteLine("\n5. Generos que a atri Judi Dench atuou");
+            var query14 = from p in cntx2.Characters
+                                         .Include("Movie")
+                                         .Include("Actor")
+                          join genero in cntx2.Genres on p.Movie.GenreId equals genero.GenreId
+                          where p.Actor.Name == "Judi Dench"
+                          select new
+                          {
+                              Genero = genero.Name,
+                              p.Movie.Title
+                          };
+
+            var query14b = from e in query14
+                           group e by e.Genero into grp
+                           select new
+                           {
+                               Gen = grp.Key,
+                               Quant = grp.Count()
+                           };
+                          
+
+
+            foreach (var res in query14b)
+            {
+                
+                Console.WriteLine("\t {0} \t {1}", res.Gen, res.Quant);
+            }
+
+
             Console.ReadKey();
-
-
 
         }
 
